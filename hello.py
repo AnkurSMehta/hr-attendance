@@ -32,9 +32,16 @@ else:
         if row[4]=="E":
             count += 1
     print("count of E = ", count)
+
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('client_secret_write.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service2 = build('sheets', 'v4', http=creds.authorize(Http()))
+
+
 dest_spread = '1xJC7GewEHCS6oqJrbcJ8i5NDyQ6MZQqrI7JV-GgX-pw'
 dest_range = 'Sheet1!A1'
 value_input_option = 'RAW'
-request = service.spreadsheets().values().update(spreadsheetId=dest_spread,range=dest_range, valueInputOption='RAW',body=values)
+request = service2.spreadsheets().values().update(spreadsheetId=dest_spread,range=dest_range, valueInputOption='RAW',body=values)
 response = request.execute()
 print(response)
