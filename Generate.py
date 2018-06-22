@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import xlrd
 import xlwt
+from datetime import date, timedelta
 
 with open("config.json") as conf:
     CONF = json.load(conf)
@@ -25,26 +26,49 @@ center_list_weekly=center_list[center_list.Type=="W"]
 
 # generate a list of dataframes, each element has the sevarthi list
 len=center_list_monthly.shape[0]
-test=[]
+list_of_all_forms=[]
 for i in range(len):
-    test.append(pd.merge(center_list_monthly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
+    list_of_all_forms.append(pd.merge(center_list_monthly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
 
 # generate excel files with multiple blocks - 1 for each month
 Month_list=['Jul','Aug','Sep','Oct','Nov','Dec']
 for i in range(len):
-    temp_df=test[0].head(0)
+    temp_df=list_of_all_forms[0].head(0)
     #temp_df['Mon']=""
     for month in Month_list:
-        test[i]['Mon']=month
-        temp_df=temp_df.append(test[i])  
+        list_of_all_forms[i]['Mon']=month
+        temp_df=temp_df.append(list_of_all_forms[i])  
     temp_df['Days_Attendance']=""
     temp_df['Total_Sessions']=""
     del temp_df['Type']
     
-    writer=pd.ExcelWriter(test[i].Dep[0]+"_"+test[i].Loc[0]+"M"+".xlsx")
+    writer=pd.ExcelWriter(list_of_all_forms[i].Dep[0]+"_"+list_of_all_forms[i].Loc[0]+"M"+".xlsx")
     temp_df.to_excel(writer,"Attendance_Form")
     writer.save()
 
+# to generate excel files for weekly sevarthi lists
+first_date = date(2018,7,1)+timedelta(6-date(2018,7,1).weekday())
+date_list=[]
+while first_date.year==2018:
+    date_list.append(str(first_date))
+    first_date += timedelta(days=7)
+date_listdf=pd.DataFrame(date_list)
+date_listdf.columns=['Dates-->>']
+date_listdf=date_listdf.T
+title="Session_Held?(Y/N)-->>"
+
+list_week_forms=[]
+lenw=center_list_weekly.shape[0]
+for i in range(lenw):
+    list_week_forms.append(pd.merge(center_list_weekly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
+for i in range(lenw):
+    del list_week_forms[i]['Type']
+    writer = pd.ExcelWriter(list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"W"+".xlsx")
+    list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
+    date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
+    worksheet=writer.sheets['Attendance_Form']
+    worksheet.write(1,6,title)
+    writer.save()
 
 '''
 def generate(forms=ALL):
