@@ -5,20 +5,47 @@ import xlrd
 import xlwt
 from datetime import date, timedelta
 
+import arial10
+
+class FitSheetWrapper(object):
+
+    """Try to fit columns to max size of any entry.
+    To use, wrap this around a worksheet returned from the 
+    workbook's add_sheet method, like follows:
+
+        sheet = FitSheetWrapper(book.add_sheet(sheet_name))
+
+    The worksheet interface remains the same: this is a drop-in wrapper
+    for auto-sizing columns.
+    """
+    def __init__(self, sheet):
+        self.sheet = sheet
+        self.widths = dict()
+
+    def write(self, r, c, label='', *args, **kwargs):
+        self.sheet.write(r, c, label, *args, **kwargs)
+        width = int(arial10.fitwidth(label))
+        if width > self.widths.get(c, 0):
+            self.widths[c] = width
+            self.sheet.set_column(c,int(width)) #modified this as per XlsxWriter https://xlsxwriter.readthedocs.io/working_with_pandas.html
+
+    def __getattr__(self, attr):
+        return getattr(self.sheet, attr)
+
 with open("config.json") as conf:
     CONF = json.load(conf)
 
-#round_year_sev_list = CONF("round_year_sevarthi_list")
+round_year_sev_list = CONF["round_year_sevarthi_list"]
 
-#round_year_center_list = CONF("Round_Year_Center_list")
-#Output_path = CONF("Attendance_Directory")
+round_year_center_list = CONF["round_year_center_list"]
+dest_generate = CONF["output_path"]
 
-#center_list = pd.read_excel(round_year_center_list) - getting error 'dict' object not callable
-#sevarthi_dataframe = pd.read_excel(round_year_sev_list)
+center_list = pd.read_excel(round_year_center_list)
+sevarthi_dataframe = pd.read_excel(round_year_sev_list)
 
 # Direct implementation - read in the 2 excel configuration files
-center_list = pd.read_excel("E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx")
-sevarthi_dataframe = pd.read_excel("E://Mumbai Center Dada//2014 04 HR//attendance_software//Sevarthi_List_Round_Year.xlsx")
+#center_list = pd.read_excel("E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx")
+#sevarthi_dataframe = pd.read_excel("E://Mumbai Center Dada//2014 04 HR//attendance_software//Sevarthi_List_Round_Year.xlsx")
 
 # filter into 2 dataframes - monthly and weekly
 center_list_monthly=center_list[center_list.Type=="M"]
@@ -42,8 +69,9 @@ for i in range(len):
     temp_df['Total_Sessions']=""
     del temp_df['Type']
     
-    writer=pd.ExcelWriter(list_of_all_forms[i].Dep[0]+"_"+list_of_all_forms[i].Loc[0]+"M"+".xlsx")
+    writer=pd.ExcelWriter(dest_generate+list_of_all_forms[i].Dep[0]+"_"+list_of_all_forms[i].Loc[0]+"MONTHLY"+".xlsx")
     temp_df.to_excel(writer,"Attendance_Form")
+    worksheet=FitSheetWrapper(writer.sheets['Attendance_Form'])
     writer.save()
 
 # to generate excel files for weekly sevarthi lists
@@ -63,10 +91,10 @@ for i in range(lenw):
     list_week_forms.append(pd.merge(center_list_weekly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
 for i in range(lenw):
     del list_week_forms[i]['Type']
-    writer = pd.ExcelWriter(list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"W"+".xlsx")
+    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
     list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
     date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
-    worksheet=writer.sheets['Attendance_Form']
+    worksheet=FitSheetWrapper(writer.sheets['Attendance_Form'])
     worksheet.write(1,6,title)
     writer.save()
 
