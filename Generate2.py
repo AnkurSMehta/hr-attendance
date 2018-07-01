@@ -45,11 +45,15 @@ for i in range(len):
     writer=pd.ExcelWriter(dest_generate+list_of_all_forms[i].Dep[0]+"_"+list_of_all_forms[i].Loc[0]+"MONTHLY"+".xlsx")
     temp_df.to_excel(writer,"Attendance_Form")
     worksheet=writer.sheets['Attendance_Form']
-    worksheet.set_column("A:A",2)
+    workbook=writer.book
+    grayfont = workbook.add_format({'font_color':'gray'})
+    worksheet.set_column("A:A",2, grayfont)
     worksheet.set_column("B:D",18)
     worksheet.set_column("E:E",30)
     worksheet.set_column("F:G",8)
     worksheet.set_column("H:I",18)
+    worksheet.conditional_format('B3:D200', {'type':'cell','criteria': '=','value':"B2",'format': grayfont})
+    #worksheet.set_column('A:A', None, grayfont)
     writer.save()
 
 # to generate excel files for weekly sevarthi lists
@@ -73,13 +77,17 @@ for i in range(lenw):
     list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
     date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
     worksheet=writer.sheets['Attendance_Form']
+    workbook=writer.book
+    grayfont = workbook.add_format({'font_color':'gray'})
     worksheet.write(1,6,title)
-    worksheet.set_column("A:A",2)
+    worksheet.set_column("A:A",2,grayfont)
     worksheet.set_column("B:D",18)
     worksheet.set_column("E:E",30)
     worksheet.set_column("F:F",8)
     worksheet.set_column("G:G",22)
     worksheet.set_column("H:BZ",10)
+    worksheet.conditional_format('B4:D200', {'type':'cell','criteria': '=','value':"B3",'format': grayfont})
+    #worksheet.set_column('A:A', None, grayfont)
     writer.save()
 
 '''
