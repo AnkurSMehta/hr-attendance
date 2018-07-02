@@ -43,11 +43,19 @@ def monthly_file_compile(filename, error_log, monthlist):
             #err_msg = filename + " Blank Att " + str(i)
             error_log.append((filename," Blank Att ", row['Name'], row['Mon']))
         
-        if lookupdf.ID[lookupdf.ID==row['ID']].index.tolist()==[]:
-            #err_msg = filename + " New ID " + str(i)
-            print row['ID'], type(row['ID'])
-            print lookupdf.ID.isin([row['ID']])[0]
-            error_log.append((filename," New ID ", row['Name'], row['Mon']))
+        try:
+            if lookupdf.ID[lookupdf.ID==int(row['ID'])].index.tolist()==[]:
+                #err_msg = filename + " New ID " + str(i)
+                #print row['ID'], type(row['ID'])
+                #print lookupdf.ID.isin([row['ID']])[0]
+                error_log.append((filename," New ID ", row['Name'], row['Mon']))
+        except:
+            if lookupdf.ID.isin([row['ID']])[0]==False:
+                #err_msg = filename + " New ID " + str(i)
+                #print row['ID'], type(row['ID'])
+                #print lookupdf.ID.isin([row['ID']])[0]
+                error_log.append((filename," New ID ", row['Name'], row['Mon']))
+
     return testdf
 
 def weekly_file_compile(filename, error_log, monthlist):
@@ -136,11 +144,18 @@ def weekly_file_compile(filename, error_log, monthlist):
             #err_msg = filename + " Blank Att " + str(i)
             error_log.append((filename," Blank Att ", row['Name'], row['Mon']))
         
-        if lookupdf.ID[lookupdf.ID==row['ID']].index.tolist()==[]:
-            #err_msg = filename + " New ID " + str(i)
-            #print row['ID'], type(row['ID'])
-            #print lookupdf.ID.isin([row['ID']])[0]
-            error_log.append((filename," New ID ", row['Name'], row['Mon']))      
+        try:
+            if lookupdf.ID[lookupdf.ID==int(row['ID'])].index.tolist()==[]:
+                #err_msg = filename + " New ID " + str(i)
+                #print row['ID'], type(row['ID'])
+                #print lookupdf.ID.isin([row['ID']])[0]
+                error_log.append((filename," New ID ", row['Name'], row['Mon']))
+        except:
+            if lookupdf.ID.isin([row['ID']])[0]==False:
+                #err_msg = filename + " New ID " + str(i)
+                #print row['ID'], type(row['ID'])
+                #print lookupdf.ID.isin([row['ID']])[0]
+                error_log.append((filename," New ID ", row['Name'], row['Mon']))      
     
     #final_df.to_csv("Monthly_Conslidate.csv", sep=",", columns=headers)
     return final_df
@@ -172,10 +187,3 @@ with open("error-log.csv", "w") as file_to_write:
         #print entry
         rec = "%s\n" % ",".join(list(entry))
         file_to_write.write(rec)
-
-
-'''
-getting error when compiledf = monthly_file  function is called
-error_log.append((filename," New ID ", str(i)))
-TypeError: 'str' object is not callable
-'''
