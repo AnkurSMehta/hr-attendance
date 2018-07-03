@@ -50,7 +50,7 @@ def monthly_file_compile(filename, error_log, monthlist):
                 #print lookupdf.ID.isin([row['ID']])[0]
                 error_log.append((filename," New ID ", row['Name'], row['Mon']))
         except:
-            if lookupdf.ID.isin([row['ID']])[0]==False:
+            if lookupdf.ID.isin([str(row['ID'])])[0]==False:
                 #err_msg = filename + " New ID " + str(i)
                 #print row['ID'], type(row['ID'])
                 #print lookupdf.ID.isin([row['ID']])[0]
@@ -151,7 +151,7 @@ def weekly_file_compile(filename, error_log, monthlist):
                 #print lookupdf.ID.isin([row['ID']])[0]
                 error_log.append((filename," New ID ", row['Name'], row['Mon']))
         except:
-            if lookupdf.ID.isin([row['ID']])[0]==False:
+            if lookupdf.ID.isin([str(row['ID'])])[0]==False:
                 #err_msg = filename + " New ID " + str(i)
                 #print row['ID'], type(row['ID'])
                 #print lookupdf.ID.isin([row['ID']])[0]
