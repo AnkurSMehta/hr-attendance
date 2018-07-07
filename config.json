@@ -3,5 +3,6 @@
     "round_year_center_list" : "E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
     "HR_Admin_Email": "hracmum@gmail.com",
     "output_path": "E://Mumbai Center Dada//2014 04 HR//attend_generated_files//",
-    "center_list":"E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx"
+    "center_list":"E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
+    "output_indiv_path":"E://Mumbai Center Dada//2014 04 HR//attend_indiv_generated//"
 }
