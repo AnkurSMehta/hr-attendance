@@ -23,7 +23,8 @@ sevarthi_dataframe = pd.read_excel(round_year_sev_list)
 # filter into 2 dataframes - monthly and weekly
 center_list_monthly=center_list[center_list.Type=="M"]
 center_list_weekly=center_list[center_list.Type=="W"]
-center_list_weekly=center_list_weekly[center_list.Dep.str.contains("LMHT") | center_list.Dep.str.contains("BMHT")]
+#center_list_weekly=center_list_weekly[center_list.Dep.str.contains("LMHT") | center_list.Dep.str.contains("BMHT")]
+center_list_weekly=center_list_weekly[center_list.Dep=="WMHT"]
 
 '''
 # generate a list of dataframes, each element has the sevarthi list
@@ -60,7 +61,7 @@ for i in range(len):
 '''
 
 # to generate excel files for weekly sevarthi lists
-first_date = date(2018,6,1)+timedelta(6-date(2018,6,1).weekday())
+first_date = date(2018,7,8)+timedelta(2-date(2018,7,8).weekday())
 date_list=[]
 while first_date.year==2018:
     date_list.append(str(first_date))
@@ -76,7 +77,8 @@ for i in range(lenw):
     list_week_forms.append(pd.merge(center_list_weekly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
 for i in range(lenw):
     del list_week_forms[i]['Type']
-    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
+    #writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
+    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx") # for WMHT only
     list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
     date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
     sevarthi_count=list_week_forms[i].shape[0]
@@ -85,6 +87,7 @@ for i in range(lenw):
     grayfont = workbook.add_format({'font_color':'gray'})
     percent_fmt=workbook.add_format({'num_format':'0%'})
     worksheet.write(1,6,title)
+    ''' below additional excel only for LMHT, BMHT
     j=6
     worksheet.write(sevarthi_count+j,1,"No of kids present")
     worksheet.write(sevarthi_count+j+1,1,"No of sevarthis present")
@@ -97,18 +100,19 @@ for i in range(lenw):
         worksheet.write(sevarthi_count+j+8+n,0,n+1)
     for rownum in range(sevarthi_count):
         worksheet.write_formula(3+rownum,6,'=iferror(countif($H%d:$AL%d,"y")/countif($H$2:$AL$2,"y"), "")' % (4+rownum, 4+rownum))
-    
+    '''
     worksheet.write(1,7,"n")
     worksheet.write(1,8,"y")
     worksheet.write(3,7,"n")
     worksheet.write(3,8,"y")
 
     worksheet.set_column("A:A",2,grayfont)
-    worksheet.set_column("B:B",22)
+    worksheet.set_column("B:B",12) # 12 enough for WMHT
     worksheet.set_column("C:D",18)
     worksheet.set_column("E:E",30)
     worksheet.set_column("F:F",8)
-    worksheet.set_column("G:G",22, percent_fmt)
+    worksheet.set_column("G:G",22)
+    #worksheet.set_column("G:G",22, percent_fmt) # this percent_fmt for LMHT, BMHT
     worksheet.set_column("H:BZ",10)
     worksheet.conditional_format('B4:D200', {'type':'cell','criteria': '=','value':"B3",'format': grayfont})
     #worksheet.set_column('A:A', None, grayfont)
