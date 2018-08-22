@@ -22,6 +22,8 @@ lookupdf=pd.DataFrame(list_of_hashes, index=None, columns=lookup_col_labels)
 lookup_col_labels=['Sevarthi Name','M/F','sub center','Round Year Dept','Event Dept', 'ID','Phone','Phone 2','E/Y',
                    'HRMUM ID','Current Status Feb 2018','Notes to verify','Additional Notes']
 lookupdf=pd.read_excel("20180607_sevarthi_master_list.xlsx",header=0, skiprows=1)
+all_ids = lookupdf['ID'].tolist()
+all_ids = map(str, all_ids)
 
 def monthly_file_compile(filename, error_log, monthlist):
     sheet=client.open(filename).sheet1
@@ -42,7 +44,12 @@ def monthly_file_compile(filename, error_log, monthlist):
         if (row['Days_Attendance']==""):
             #err_msg = filename + " Blank Att " + str(i)
             error_log.append((filename," Blank Att ", row['Name'], row['Mon']))
-        
+
+        if (str(row['ID']) not in all_ids):
+            error_log.append((filename," New ID ", row['Name'], row['Mon']))
+    return testdf
+
+'''
         try:
             if lookupdf.ID[lookupdf.ID==int(row['ID'])].index.tolist()==[]:
                 #err_msg = filename + " New ID " + str(i)
@@ -55,8 +62,9 @@ def monthly_file_compile(filename, error_log, monthlist):
                 #print row['ID'], type(row['ID'])
                 #print lookupdf.ID.isin([row['ID']])[0]
                 error_log.append((filename," New ID ", row['Name'], row['Mon']))
-
+    
     return testdf
+'''
 
 def weekly_file_compile(filename, error_log, monthlist):
     sheet=client.open(filename).sheet1
@@ -144,6 +152,11 @@ def weekly_file_compile(filename, error_log, monthlist):
             #err_msg = filename + " Blank Att " + str(i)
             error_log.append((filename," Blank Att ", row['Name'], row['Mon']))
         
+        if (str(row['ID']) not in all_ids):
+            error_log.append((filename," New ID ", row['Name'], row['Mon']))
+    return final_df
+
+'''            
         try:
             if lookupdf.ID[lookupdf.ID==int(row['ID'])].index.tolist()==[]:
                 #err_msg = filename + " New ID " + str(i)
@@ -156,10 +169,10 @@ def weekly_file_compile(filename, error_log, monthlist):
                 #print row['ID'], type(row['ID'])
                 #print lookupdf.ID.isin([row['ID']])[0]
                 error_log.append((filename," New ID ", row['Name'], row['Mon']))      
-    
+
     #final_df.to_csv("Monthly_Conslidate.csv", sep=",", columns=headers)
     return final_df
-
+'''
 
 
 Col_labels=['Dep','Loc','Act','Name','ID','Mon','Days_Attendance','Total_Sessions']
