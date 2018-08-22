@@ -1,4 +1,5 @@
 # this compiles the data from individual sheets into a master attendance sheet
+# 201808 will soon start refactoring
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
