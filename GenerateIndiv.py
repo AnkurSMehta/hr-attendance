@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 # this python file generates an entry form for each center
 import json
 import pandas as pd
@@ -8,9 +9,9 @@ from datetime import date, timedelta
 with open("config.json") as conf:
     CONF = json.load(conf)
 
-round_year_sev_list = CONF["round_year_sevarthi_list"]
+round_year_sev_list = CONF["round_year_sevarthi_list_jul"]
 
-round_year_center_list = CONF["round_year_center_list"]
+round_year_center_list = CONF["round_year_center_list_jul"]
 dest_generate = CONF["output_indiv_path"]
 
 center_list = pd.read_excel(round_year_center_list)
@@ -24,15 +25,17 @@ sevarthi_dataframe = pd.read_excel(round_year_sev_list)
 center_list_monthly=center_list[center_list.Type=="M"]
 center_list_weekly=center_list[center_list.Type=="W"]
 #center_list_weekly=center_list_weekly[center_list.Dep.str.contains("LMHT") | center_list.Dep.str.contains("BMHT")]
-center_list_weekly=center_list_weekly[center_list.Dep=="WMHT"]
+#center_list_weekly=center_list_weekly[center_list.Dep=="WMHT"]
+center_list_weekly=center_list_weekly[center_list.Dep.str.contains("Sub") & center_list.Loc.str.contains("Kandiv")]
+center_list_monthly=center_list_monthly[center_list.Dep.str.contains("Sub")]
+Col_labels=['Dep','Loc','Act','Name','ID','Mon','Days_Attendance','Total_Sessions']
 
-'''
 # generate a list of dataframes, each element has the sevarthi list
 len=center_list_monthly.shape[0]
 list_of_all_forms=[]
 for i in range(len):
     list_of_all_forms.append(pd.merge(center_list_monthly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
-
+'''
 # generate excel files with multiple blocks - 1 for each month
 Month_list=['Jul','Aug','Sep','Oct','Nov','Dec']
 for i in range(len):
@@ -45,8 +48,8 @@ for i in range(len):
     temp_df['Total_Sessions']=""
     del temp_df['Type']
     
-    writer=pd.ExcelWriter(dest_generate+list_of_all_forms[i].Dep[0]+"_"+list_of_all_forms[i].Loc[0]+"MONTHLY"+".xlsx")
-    temp_df.to_excel(writer,"Attendance_Form")
+    writer=pd.ExcelWriter(dest_generate+list_of_all_forms[i].Loc[0]+"_"+list_of_all_forms[i].Dep[0]+"MONTHLY"+".xlsx")
+    temp_df.to_excel(writer,"Attendance_Form", columns=Col_labels)
     worksheet=writer.sheets['Attendance_Form']
     workbook=writer.book
     grayfont = workbook.add_format({'font_color':'gray'})
@@ -61,7 +64,7 @@ for i in range(len):
 '''
 
 # to generate excel files for weekly sevarthi lists
-first_date = date(2018,7,8)+timedelta(2-date(2018,7,8).weekday())
+first_date = date(2018,7,1)+timedelta(6-date(2018,7,1).weekday())
 date_list=[]
 while first_date.year==2018:
     date_list.append(str(first_date))
@@ -78,7 +81,7 @@ for i in range(lenw):
 for i in range(lenw):
     del list_week_forms[i]['Type']
     #writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
-    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx") # for WMHT only
+    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Loc[0]+"_SC_WEEKLY"+".xlsx") # for WMHT only .Loc because WMHT also in Location
     list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
     date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
     sevarthi_count=list_week_forms[i].shape[0]
@@ -87,6 +90,9 @@ for i in range(lenw):
     grayfont = workbook.add_format({'font_color':'gray'})
     percent_fmt=workbook.add_format({'num_format':'0%'})
     worksheet.write(1,6,title)
+    unlocked = workbook.add_format({'locked':0})
+    locked = workbook.add_format({'locked':1})
+
     ''' below additional excel only for LMHT, BMHT
     j=6
     worksheet.write(sevarthi_count+j,1,"No of kids present")
@@ -101,13 +107,9 @@ for i in range(lenw):
     for rownum in range(sevarthi_count):
         worksheet.write_formula(3+rownum,6,'=iferror(countif($H%d:$AL%d,"y")/countif($H$2:$AL$2,"y"), "")' % (4+rownum, 4+rownum))
     '''
-    worksheet.write(1,7,"n")
-    worksheet.write(1,8,"y")
-    worksheet.write(3,7,"n")
-    worksheet.write(3,8,"y")
 
     worksheet.set_column("A:A",2,grayfont)
-    worksheet.set_column("B:B",12) # 12 enough for WMHT
+    worksheet.set_column("B:B",18) # 12 enough for WMHT
     worksheet.set_column("C:D",18)
     worksheet.set_column("E:E",30)
     worksheet.set_column("F:F",8)
@@ -115,6 +117,28 @@ for i in range(lenw):
     #worksheet.set_column("G:G",22, percent_fmt) # this percent_fmt for LMHT, BMHT
     worksheet.set_column("H:BZ",10)
     worksheet.conditional_format('B4:D200', {'type':'cell','criteria': '=','value':"B3",'format': grayfont})
+    #worksheet.set_column('A:XDF', None, unlocked)
+
+    for n in range(60):
+        worksheet.write(1, n+7,"",unlocked)
+        #worksheet.data_validation(1,n+7,{'validate':'list', 'source':['y','Y','n','N']})
+        for m in range(200):
+            worksheet.write(3+m, n+6,"",unlocked)
+            worksheet.write(sevarthi_count+3+m,n+1,"",unlocked)
+
+    #worksheet.write('$H$2:$BZ$2'," ",locked)
+    #worksheet.write_formula('$G$4:$BZ$200'," ",unlocked)
+    #worksheet.write_formula('$B$%d:$BZ$200' % (sevarthi_count+4)," ",unlocked)
+    worksheet.protect()
+    
+    worksheet.data_validation(1,7,1,67,{'validate':'list', 'source':['y','n'],'error_title': 'y or n','error_message':'Jsca, pls enter only y or n'})
+    worksheet.data_validation(3,7,sevarthi_count+20,67,{'validate':'list', 'source':['y','n'],'error_title': 'y or n','error_message':'Jsca, pls enter only y or n'})
+    worksheet.write(1,7,"n", unlocked)
+    worksheet.write(1,8,"y", unlocked)
+    worksheet.write(3,7,"n", unlocked)
+    worksheet.write(3,8,"y", unlocked)
+    worksheet.freeze_panes(3,7)
+
     #worksheet.set_column('A:A', None, grayfont)
     writer.save()
 
