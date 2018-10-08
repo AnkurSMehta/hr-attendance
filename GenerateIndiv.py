@@ -2,6 +2,7 @@
 # this python file generates an entry form for each center
 import json
 import pandas as pd
+import openpyxl
 import xlrd
 import xlwt
 from datetime import date, timedelta
@@ -26,8 +27,8 @@ center_list_monthly=center_list[center_list.Type=="M"]
 center_list_weekly=center_list[center_list.Type=="W"]
 #center_list_weekly=center_list_weekly[center_list.Dep.str.contains("LMHT") | center_list.Dep.str.contains("BMHT")]
 #center_list_weekly=center_list_weekly[center_list.Dep=="WMHT"]
-center_list_weekly=center_list_weekly[center_list.Dep.str.contains("Sub") & center_list.Loc.str.contains("Kandiv")]
-center_list_monthly=center_list_monthly[center_list.Dep.str.contains("Sub")]
+center_list_weekly=center_list_weekly[center_list.Dep.str.contains("LMHT") & center_list.Loc.str.contains("Thane")]
+center_list_monthly=center_list_monthly[center_list.Dep.str.contains("LMHT")]
 Col_labels=['Dep','Loc','Act','Name','ID','Mon','Days_Attendance','Total_Sessions']
 
 # generate a list of dataframes, each element has the sevarthi list
@@ -80,20 +81,20 @@ for i in range(lenw):
     list_week_forms.append(pd.merge(center_list_weekly[i:i+1], sevarthi_dataframe.iloc[:,0:5], on=['Dep','Loc']))
 for i in range(lenw):
     del list_week_forms[i]['Type']
-    #writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
-    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Loc[0]+"_SC_WEEKLY"+".xlsx") # for WMHT only .Loc because WMHT also in Location
+    writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Dep[0]+"_"+list_week_forms[i].Loc[0]+"WEEKLY"+".xlsx")
+    #writer = pd.ExcelWriter(dest_generate+list_week_forms[i].Loc[0]+"_SC_WEEKLY"+".xlsx") # for WMHT only .Loc because WMHT also in Location
     list_week_forms[i].to_excel(writer,"Attendance_Form", startrow=2)
     date_listdf.to_excel(writer, "Attendance_Form", startrow=2, startcol=6, header=False)
     sevarthi_count=list_week_forms[i].shape[0]
     worksheet=writer.sheets['Attendance_Form']
     workbook=writer.book
-    grayfont = workbook.add_format({'font_color':'gray'})
+    grayfont=workbook.add_format({'font_color':'gray'})
     percent_fmt=workbook.add_format({'num_format':'0%'})
     worksheet.write(1,6,title)
     unlocked = workbook.add_format({'locked':0})
     locked = workbook.add_format({'locked':1})
 
-    ''' below additional excel only for LMHT, BMHT
+    #below additional excel only for LMHT, BMHT
     j=6
     worksheet.write(sevarthi_count+j,1,"No of kids present")
     worksheet.write(sevarthi_count+j+1,1,"No of sevarthis present")
@@ -106,22 +107,22 @@ for i in range(lenw):
         worksheet.write(sevarthi_count+j+8+n,0,n+1)
     for rownum in range(sevarthi_count):
         worksheet.write_formula(3+rownum,6,'=iferror(countif($H%d:$AL%d,"y")/countif($H$2:$AL$2,"y"), "")' % (4+rownum, 4+rownum))
-    '''
+    
 
     worksheet.set_column("A:A",2,grayfont)
     worksheet.set_column("B:B",18) # 12 enough for WMHT
     worksheet.set_column("C:D",18)
     worksheet.set_column("E:E",30)
     worksheet.set_column("F:F",8)
-    worksheet.set_column("G:G",22)
-    #worksheet.set_column("G:G",22, percent_fmt) # this percent_fmt for LMHT, BMHT
+    #worksheet.set_column("G:G",22)
+    worksheet.set_column("G:G",22, percent_fmt) # this percent_fmt for LMHT, BMHT
     worksheet.set_column("H:BZ",10)
     worksheet.conditional_format('B4:D200', {'type':'cell','criteria': '=','value':"B3",'format': grayfont})
-    #worksheet.set_column('A:XDF', None, unlocked)
+    worksheet.set_column('A:XDF', None, unlocked)
 
     for n in range(60):
         worksheet.write(1, n+7,"",unlocked)
-        #worksheet.data_validation(1,n+7,{'validate':'list', 'source':['y','Y','n','N']})
+        worksheet.data_validation(1,n+7,{'validate':'list', 'source':['y','Y','n','N']})
         for m in range(200):
             worksheet.write(3+m, n+6,"",unlocked)
             worksheet.write(sevarthi_count+3+m,n+1,"",unlocked)
