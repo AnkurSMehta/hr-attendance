@@ -1,8 +1,10 @@
 {
-    "round_year_sevarthi_list" : "E://Mumbai Center Dada//2014 04 HR//attendance_software//Sevarthi_List_Round_Year.xlsx",
-    "round_year_center_list" : "E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
+    "round_year_sevarthi_list" : "C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attendance_software//Sevarthi_List_Round_Year.xlsx",
+    "round_year_center_list" : "C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
     "HR_Admin_Email": "hracmum@gmail.com",
-    "output_path": "E://Mumbai Center Dada//2014 04 HR//attend_generated_files//",
-    "center_list":"E://Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
-    "output_indiv_path":"E://Mumbai Center Dada//2014 04 HR//attend_indiv_generated//"
+    "output_path": "C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attend_generated_files//",
+    "center_list":"C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List.xlsx",
+    "output_indiv_path":"C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attend_indiv_generated//",
+    "round_year_sevarthi_list_jul" : "C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attendance_software//Sevarthi_List_Round_Year2.xlsx",
+    "round_year_center_list_jul" : "C://Users//Ankur//Documents//Mumbai Center Dada//2014 04 HR//attendance_software//Round_Year_Center_List2.xlsx"
 }
